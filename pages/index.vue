@@ -12,7 +12,7 @@
 
 					<span v-if="offices_layer.length > 0">
 						<l-marker v-for="office in offices_layer" :key="office.id" :lat-lng="[office.lat, office.lon]"
-							:icon="companyIcon" :options="{ title: office.name }">
+							:icon="companyIcon(office.coworking)" :options="{ title: office.name }">
 							<l-popup><strong>{{ office.company.name }}</strong><br><b-link
 									:to="`/offices/edit/${office.id}`">{{ office.name }}</b-link></l-popup>
 						</l-marker>
@@ -35,11 +35,16 @@ import { LMap, LTileLayer, LMarker, LCircleMarker, LWMSTileLayer, LPopup } from 
 import "leaflet/dist/leaflet.css";
 import UserService from "@/services/user.service";
 
-const companyIcon = L.divIcon({
-	html: "<i class=\"fa fa-building-o fa-2x\"></i>",
-	iconSize: [20, 20],
-	className: "myDivIcon",
-});
+// const companyIcon = L.divIcon({
+// 	html: "<i class=\"fa fa-building-o fa-2x\"></i>",
+// 	iconSize: [20, 20],
+// 	className: "myDivIcon",
+// });
+// const companyIcongre = L.divIcon({
+// 	html: "<i class=\"fa fa-building-o fa-2x\" style=\"color:green\"></i>",
+// 	iconSize: [20, 20],
+// 	className: "myDivIcon",
+// });
 
 export default {
 	mixins: [Util],
@@ -53,7 +58,7 @@ export default {
 	},
 	async created () {	
 		this.loading = true;	
-		let response = await UserService.getOffices(null, "id, name, company_id, lat, lon, Companies.name, Companies.type, address, city");
+		let response = await UserService.getOffices(null, "id, name, company_id, lat, lon, Companies.name, Companies.type, address, city,coworking");
 		this.office_list = response.data.offices;
 		this.offices_layer = this.generateLayer(this.office_types);
 		this.loading = false;
@@ -76,7 +81,7 @@ export default {
 			azienda: { id: 0 },
 			aziende: [],
 			loading: false,
-			companyIcon: companyIcon,
+			// companyIcon: null,
 			wms_layers: [
 				{ value: "M-Linee", text: "Linee Metro" },
 				{ value: "M-Fermate", text: "Fermate Metro" },
@@ -108,6 +113,22 @@ export default {
 					return true;
 				}
 			});
+		},
+		companyIcon(cow) {
+			if(cow==1){
+				return L.divIcon({
+					html: "<i class=\"fa fa-building-o fa-2x\" style=\"color:red\"></i>",
+					iconSize: [20, 20],
+					className: "myDivIcon",
+				});
+			}else{
+				return L.divIcon({
+					html: "<i class=\"fa fa-building-o fa-2x\"></i>",
+					iconSize: [20, 20],
+					className: "myDivIcon",
+				});
+			}
+			
 		},
 
 	},
