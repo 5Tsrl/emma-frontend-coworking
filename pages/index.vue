@@ -13,8 +13,16 @@
 					<span v-if="offices_layer.length > 0">
 						<l-marker v-for="office in offices_layer" :key="office.id" :lat-lng="[office.lat, office.lon]"
 							:icon="companyIcon(office.coworking)" :options="{ title: office.name }">
-							<l-popup><strong>{{ office.company.name }}</strong><br><b-link
-									:to="`/offices/edit/${office.id}`">{{ office.name }}</b-link></l-popup>
+							<l-popup ><strong>{{ office.company.name }}</strong><br><b-link
+									:to="`/offices/edit/${office.id}`">{{ office.name }}</b-link>
+									<div v-for="cow in office.info_coworking">
+										<br><strong v-if="office.coworking == 1 && office.info_coworking!=null">Sale: {{ cow.sale }}</strong>
+										<br><strong v-if="office.coworking == 1 && office.info_coworking!=null">Costo: {{ cow.costo }} €</strong>
+										<br><b-link
+										v-if="office.coworking == 1 && office.info_coworking!=null" :to="cow.link">Prenotazione</b-link>
+									</div>
+								
+							</l-popup>
 						</l-marker>
 					</span>					
 
@@ -58,7 +66,7 @@ export default {
 	},
 	async created () {	
 		this.loading = true;	
-		let response = await UserService.getOffices(null, "id, name, company_id, lat, lon, Companies.name, Companies.type, address, city,coworking");
+		let response = await UserService.getOffices(null, "id, name, company_id, lat, lon, Companies.name, Companies.type, address, city,coworking,info_coworking");
 		this.office_list = response.data.offices;
 		this.offices_layer = this.generateLayer(this.office_types);
 		this.loading = false;
