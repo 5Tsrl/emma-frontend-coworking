@@ -1,6 +1,12 @@
 <template>
     <div>
-		<b-button @click="fitMarkers()"><i class="ti-fullscreen"></i>&nbsp;Visualizza tutti gli spazi</b-button>
+		<b-button @click="fitMarkers()" size="sm" class="btn btn-primary float-right"><i class="ti-fullscreen mr-1"></i>&nbsp;Visualizza tutti gli spazi</b-button>
+		<br>
+		<!-- <b-button v-b-toggle.collapse-1 variant="secondary">Filtro</b-button>
+ 	<b-collapse id="collapse-1" class="mt-2">
+		<b-form-select v-model="selected" :options="options" size="sm" class="mt-3" text-field="Città"></b-form-select>
+
+    </b-collapse> -->
 		
 		<div id="map-container" class="mt-3">
 				<div id="spinner-container" class="text-center" v-if="loading">
