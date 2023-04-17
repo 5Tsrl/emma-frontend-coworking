@@ -20,7 +20,7 @@
 						<l-marker v-for="office in offices_layer" :key="office.id" :lat-lng="[office.lat, office.lon]"
 							:icon="companyIcon(office.coworking)" :options="{ title: office.name }">
 							<l-popup ><strong>{{ office.company.name }}</strong><br><b-link
-									:to="`/offices/edit/${office.id}`">{{ office.name }}</b-link>
+									:to="`/offices/edit/${office.id}`"  :disabled="!(loggedUserIsMomaArea || loggedUserIsAdmin)">{{ office.name }}</b-link>
 									<div v-for="cow in office.info_coworking">
 										<br><strong v-if="office.coworking == 1 && office.info_coworking!=null">Sale: {{ cow.sale }}</strong>
 										<br><strong v-if="office.coworking == 1 && office.info_coworking!=null">Costo: {{ cow.costo }} €</strong>

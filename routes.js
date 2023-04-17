@@ -9,7 +9,7 @@ const routes = [
 			{
 				path: "/coworking",
 				name: "Spazi di Coworking",
-				meta: { authorize: ["admin"] },
+				meta: { authorize: ["admin", "moma","moma_area", "user"]  },
 				// lazy-loaded
 				component: pageComponent("index"),
 			},						
