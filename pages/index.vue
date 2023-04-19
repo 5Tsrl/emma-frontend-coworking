@@ -1,6 +1,43 @@
 <template>
     <div>
-		<b-button @click="fitMarkers()" size="sm" class="btn btn-primary float-right"><i class="ti-fullscreen mr-1"></i>&nbsp;Visualizza tutti gli spazi</b-button>
+		<b-form>
+			<b-form-row>
+				<b-col md="4" v-if="isAuthorized('admin, moma')">
+				<b-form-group label="Tipo di coworking:">
+				<b-form-select
+					v-model="type"
+					:options="coworking_types"
+					value-field="id"
+            		text-field="name"
+					@input="updateType($event)"
+					></b-form-select>
+				</b-form-group>
+				</b-col>
+
+		<b-col md="4" v-if="isAuthorized('admin, moma')">
+			<b-form-group label="Città:">
+			<b-form-select
+				v-model="city"
+				:options="offices_city"
+				value-field="id"
+            	text-field="name"
+				@input="updateCity($event)"></b-form-select>
+			</b-form-group>
+		</b-col>
+		<b-col >
+			<br>
+			<br>
+			<b-form-checkbox v-model="coworking" @change="toggle"> Coworking</b-form-checkbox>
+		</b-col>
+			<b-col>
+				<br>
+				<br>
+				<b-button @click="fitMarkers()" size="sm" class="btn btn-primary float-right"><i class="ti-fullscreen mr-1"></i>&nbsp;Visualizza tutti gli spazi</b-button></b-col>
+		</b-form-row>
+		
+    	</b-form>
+		
+		
 		<br>
 		<!-- <b-button v-b-toggle.collapse-1 variant="secondary">Filtro</b-button>
  	<b-collapse id="collapse-1" class="mt-2">
@@ -12,6 +49,7 @@
 				<div id="spinner-container" class="text-center" v-if="loading">
 					<b-spinner id="spinner" variant="success" label="Spinning"></b-spinner>
 				</div>
+		
 				<l-map id="my-map"  :zoom="zoom" :center="center" :options="getMapOptions"
 					@update:center="centerUpdate" @update:zoom="zoomUpdate" ref="map">
 					<l-tile-layer :url="getTilesUrl" :attribution="getMapAttribution" :options="getLayerOptions" />
@@ -22,6 +60,7 @@
 							<l-popup ><strong>{{ office.company.name }}</strong><br><b-link
 									:to="`/offices/edit/${office.id}`"  :disabled="!(loggedUserIsMomaArea || loggedUserIsAdmin)">{{ office.name }}</b-link>
 									<div v-for="cow in office.info_coworking">
+										<br><strong v-if="office.coworking == 1 && office.info_coworking!=null">{{ cow.type }}</strong>
 										<br><strong v-if="office.coworking == 1 && office.info_coworking!=null">Sale: {{ cow.sale }}</strong>
 										<br><strong v-if="office.coworking == 1 && office.info_coworking!=null">Costo: {{ cow.costo }} €</strong>
 										<br><b-link
@@ -75,8 +114,28 @@ export default {
 		let response = await UserService.getOffices(null, "id, name, company_id, lat, lon, Companies.name, Companies.type, address, city,coworking,info_coworking");
 		this.office_list = response.data.offices;
 		this.offices_layer = this.generateLayer(this.office_types);
+		this.offices_city = [...new Set(this.offices_layer.map(item => 
+		{
+			if(item.city!==null && item.city!=='' )
+			{
+				return item.city.trim().toLowerCase()
+					
+			}
+		}))];
+		this.offices_city.unshift(
+			{
+					id: null,
+					name: "Tutte",
+				});
+		this.city =this.offices_city[0].id;
 		this.loading = false;
 		this.fitMarkers();		
+		this.coworking_types=(await UserService.getCoworkingtypes()).data.types;
+		this.coworking_types.unshift(
+			{
+					id: null,
+					name: "Tutte",
+				});
 	},
 	data() {
 		return {
@@ -104,6 +163,11 @@ export default {
 			],
 			wms_layers_selezionati: ["BikeSharing", "P-Ciclabili"],
 			wmsRenderKey: Date.now(),
+			coworking:false,
+			city:null,
+			offices_city: [],
+			type:null,
+			coworking_types:[],
 		};
 	},
 	computed: {
@@ -121,10 +185,71 @@ export default {
 		fitMarkers() {
 			this.$refs.map.mapObject.fitBounds(this.offices_layer);
 		},
-		generateLayer: function (types) {
+		generateLayer: function (types,coworking=false,city=null,type=null) {
 			return this.office_list.filter((x) => {
 				if (x.company !== undefined && x.company !== null && x.lat != null && types.includes(x.company.type)) {
-					return true;
+					if(coworking){
+						if(city !== null){
+							if(x.city!== null){
+								if(type !== null && (x.city.trim().toLowerCase() == city)){
+									if(x.info_coworking!==null ){
+										const coworkingType = x.info_coworking.find(item => item.type === type);
+										return coworkingType ? true : false;
+									}else{
+										return false;
+									}
+								}else{
+									return x.coworking && (x.city.trim().toLowerCase() == city);
+								}
+								
+							}
+						}else{
+							if(type !== null){
+								if(x.info_coworking!==null){
+									const coworkingType = x.info_coworking.find(item => item.type === type);
+									return coworkingType ? true : false;
+								}else{
+									return false;
+								}
+							}else{
+									return x.coworking;
+								}
+							
+						}
+						
+					}else{
+						if(city !== null){
+							if(x.city!== null){
+								if(type !== null && (x.city.trim().toLowerCase() == city)){
+									if(x.info_coworking!==null){
+										const coworkingType = x.info_coworking.find(item => item.type === type);
+										return coworkingType ? true : false;
+									}else{
+										return false;
+									}
+								}else{
+									return (x.city.trim().toLowerCase() == city);
+								}
+								
+							}
+							
+						}else{
+							if(type !== null){
+								if(x.info_coworking!==null){
+								const coworkingType = x.info_coworking.find(item => item.type === type);
+    							return coworkingType ? true : false;
+							}else{
+								return false;
+							}
+
+							}else{
+								return true;
+							}
+							
+						}
+						
+					}
+					
 				}
 			});
 		},
@@ -144,6 +269,17 @@ export default {
 			}
 			
 		},
+		toggle(checked) {
+			this.offices_layer = this.generateLayer(this.office_types,checked,this.city,this.type);
+      },
+	  updateCity(){
+		this.offices_layer = this.generateLayer(this.office_types,this.coworking,this.city,this.type);
+		console.log(this.offices_layer)
+	  },
+	  updateType(){
+		this.offices_layer = this.generateLayer(this.office_types,this.coworking,this.city,this.type);
+		console.log(this.offices_layer)
+	  },
 
 	},
 };
