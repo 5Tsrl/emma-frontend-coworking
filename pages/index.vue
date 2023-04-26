@@ -114,14 +114,16 @@ export default {
 		let response = await UserService.getOffices(null, "id, name, company_id, lat, lon, Companies.name, Companies.type, address, city,coworking,info_coworking");
 		this.office_list = response.data.offices;
 		this.offices_layer = this.generateLayer(this.office_types);
-		this.offices_city = [...new Set(this.offices_layer.map(item => 
-		{
-			if(item.city!==null && item.city!=='' )
-			{
-				return item.city.trim().toLowerCase()
-					
-			}
-		}))];
+		this.offices_city = Array.from(new Set(this.offices_layer.reduce((acc, item) => {
+		  if (!(item.city == null || item.city == '')) {
+			acc.push(item.city.trim().toLowerCase());
+		  }
+		  return acc;
+		}, []))).filter(value => value !== null);
+		
+		this.offices_city.sort(function (a, b) {
+					return a > b;
+				});
 		this.offices_city.unshift(
 			{
 					id: null,
@@ -271,6 +273,25 @@ export default {
 		},
 		toggle(checked) {
 			this.offices_layer = this.generateLayer(this.office_types,checked,this.city,this.type);
+			this.offices_city = [...new Set(this.offices_layer.map(item => 
+			{
+				if(!(item.city==null || item.city == undefined || item.city=='') )
+				{
+					return item.city.trim().toLowerCase();
+					// return item.city;
+						
+				}
+			}))];
+			this.offices_city.sort(function (a, b) {
+						return a > b;
+					});
+			this.offices_city.unshift(
+				{
+						id: null,
+						name: "Tutte",
+					});
+			this.city =this.offices_city[0].id;
+
       },
 	  updateCity(){
 		this.offices_layer = this.generateLayer(this.office_types,this.coworking,this.city,this.type);
@@ -278,6 +299,24 @@ export default {
 	  },
 	  updateType(){
 		this.offices_layer = this.generateLayer(this.office_types,this.coworking,this.city,this.type);
+		this.offices_city = [...new Set(this.offices_layer.map(item => 
+			{
+				if(!(item.city==null || item.city == undefined || item.city=='') )
+				{
+					return item.city.trim().toLowerCase();
+					// return item.city;
+						
+				}
+			}))];
+			this.offices_city.sort(function (a, b) {
+						return a > b;
+					});
+			this.offices_city.unshift(
+				{
+						id: null,
+						name: "Tutte",
+					});
+			this.city =this.offices_city[0].id;
 		console.log(this.offices_layer)
 	  },
 
