@@ -58,7 +58,7 @@
 						<l-marker v-for="office in offices_layer" :key="office.id" :lat-lng="[office.lat, office.lon]"
 							:icon="companyIcon(office.coworking)" :options="{ title: office.name }">
 							<l-popup ><strong>{{ office.company.name }}</strong><br><b-link
-									:to="`/offices/edit/${office.id}`"  :disabled="!(loggedUserIsMomaArea || loggedUserIsAdmin)">{{ office.name }}</b-link>
+									:to="`/offices/edit/${office.id}`"  :disabled="!(loggedUserIsMomaArea || loggedUserIsAdmin || loggedUserIsMomaManagerAziendale)">{{ office.name }}</b-link>
 									<div v-for="cow in office.info_coworking">
 										<br><strong v-if="office.coworking == 1 && office.info_coworking!=null">{{ cow.type }}</strong>
 										<br><strong v-if="office.coworking == 1 && office.info_coworking!=null">Sale: {{ cow.sale }}</strong>
@@ -111,7 +111,7 @@ export default {
 	},
 	async created () {	
 		this.loading = true;	
-		let response = await UserService.getOffices(null, "id, name, company_id, lat, lon, Companies.name, Companies.type, address, city,coworking,info_coworking");
+		let response = await UserService.getOffices(null, "id, name, company_id, lat, lon, Companies.name, Companies.type, address, city, coworking, info_coworking");
 		this.office_list = response.data.offices;
 		this.offices_layer = this.generateLayer(this.office_types);
 		this.offices_city = Array.from(new Set(this.offices_layer.reduce((acc, item) => {
@@ -141,9 +141,9 @@ export default {
 	},
 	data() {
 		return {
-			zoom: 18,
+			zoom: 8,
 			center: latLng(45.070339, 7.686864),
-			currentZoom: 11.5,
+			currentZoom: 8,
 			currentCenter: latLng(45.070339, 7.686864),
 			showMap: true,
 			uffici_azienda: [],
