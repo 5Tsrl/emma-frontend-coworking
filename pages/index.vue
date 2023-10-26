@@ -60,7 +60,7 @@
 							<l-popup ><strong>{{ office.company.name }}</strong><br><b-link
 									:to="`/offices/edit/${office.id}`"  :disabled="!(loggedUserIsMomaArea || loggedUserIsAdmin || loggedUserIsMomaManagerAziendale)">{{ office.name }}</b-link>
 									<div v-for="cow in office.info_coworking">
-										<br><strong v-if="office.coworking == 1 && office.info_coworking!=null">{{ cow.type }}</strong>
+										<br><strong v-if="office.coworking == 1 && office.info_coworking!=null">{{ coworking_types[cow.type] }}</strong>
 										<br><strong v-if="office.coworking == 1 && office.info_coworking!=null">Sale: {{ cow.sale }}</strong>
 										<br><strong v-if="office.coworking == 1 && office.info_coworking!=null">Costo: {{ cow.costo }} €</strong>
 										<br><b-link
