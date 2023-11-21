@@ -73,7 +73,7 @@
 
 					<l-wms-tile-layer :key="wmsRenderKey"
 						base-url="http://geomap.reteunitaria.piemonte.it/ws/siccms/coto-01/wmsg01/wms_sicc124_mobilita"
-						:visible="true" :layers="selectedWmsLayers" :transparent="true" format="image/png">
+						:visible="true" :transparent="true" format="image/png">
 					</l-wms-tile-layer>
 				</l-map>
 		</div>		
@@ -157,13 +157,6 @@ export default {
 			aziende: [],
 			loading: false,
 			// companyIcon: null,
-			wms_layers: [
-				{ value: "M-Linee", text: "Linee Metro" },
-				{ value: "M-Fermate", text: "Fermate Metro" },
-				{ value: "BikeSharing", text: "Bike Sharing" },
-				{ value: "P-Ciclabili", text: "Percorsi Ciclabili" },
-			],
-			wms_layers_selezionati: ["BikeSharing", "P-Ciclabili"],
 			wmsRenderKey: Date.now(),
 			coworking:false,
 			city:null,
@@ -173,9 +166,6 @@ export default {
 		};
 	},
 	computed: {
-		selectedWmsLayers: function () {
-			return this.wms_layers_selezionati.join(",");
-		},
 	},
 	methods: {
 		zoomUpdate(zoom) {
