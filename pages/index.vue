@@ -71,10 +71,6 @@
 						</l-marker>
 					</span>					
 
-					<l-wms-tile-layer :key="wmsRenderKey"
-						base-url="http://geomap.reteunitaria.piemonte.it/ws/siccms/coto-01/wmsg01/wms_sicc124_mobilita"
-						:visible="true" :transparent="true" format="image/png">
-					</l-wms-tile-layer>
 				</l-map>
 		</div>		
     </div>
@@ -145,7 +141,6 @@ export default {
 			center: latLng(45.070339, 7.686864),
 			currentZoom: 8,
 			currentCenter: latLng(45.070339, 7.686864),
-			showMap: true,
 			uffici_azienda: [],
 			office_id: [],
 			offices_layer: [],
