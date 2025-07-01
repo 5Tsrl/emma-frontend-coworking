@@ -33,7 +33,7 @@ You need a running LAMPP server with PHP 7.2+, MySQL or MariaDB, Apache or Nginx
 - In the root folder you find a Dockerfile which should help you to setup the environment.
 
 # Versioning
-1.23.0901
+1.25.0701
 
 # Authors
 Settore Mobilità Sostenibile 5T (Customer) - mobilita.sostenibile@5t.torino.it
@@ -49,4 +49,4 @@ SPDX-License-Identifier: EUPL-1.2
 See the LICENSE.txt file for details
 
 # Community site
-https://bitbucket.org/mobilitymanagerplatform/emma-api
+https://github.com/5Tsrl/emma-frontend.git
