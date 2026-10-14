@@ -1,86 +1,134 @@
 <template>
-    <div>
-		<b-form>
-			<b-form-row>
-				<b-col md="4" v-if="isAuthorized('admin, moma')">
-				<b-form-group label="Tipo di coworking:">
-				<b-form-select
-					v-model="type"
-					:options="coworking_types"
-					value-field="id"
-            		text-field="name"
-					@input="updateType($event)"
-					></b-form-select>
-				</b-form-group>
-				</b-col>
+  <div>
+    <b-form>
+      <b-form-row>
+        <b-col
+          v-if="isAuthorized('admin, moma')"
+          md="4"
+        >
+          <b-form-group label="Tipo di coworking:">
+            <b-form-select
+              v-model="type"
+              :options="coworking_types"
+              value-field="id"
+              text-field="name"
+              @input="updateType($event)"
+            />
+          </b-form-group>
+        </b-col>
 
-		<b-col md="4" v-if="isAuthorized('admin, moma')">
-			<b-form-group label="Città:">
-			<b-form-select
-				v-model="city"
-				:options="offices_city"
-				value-field="id"
-            	text-field="name"
-				@input="updateCity($event)"></b-form-select>
-			</b-form-group>
-		</b-col>
-		<b-col >
-			<br>
-			<br>
-			<b-form-checkbox v-model="coworking" @change="toggle"> Coworking</b-form-checkbox>
-		</b-col>
-			<b-col>
-				<br>
-				<br>
-				<b-button @click="fitMarkers()" size="sm" class="btn btn-primary float-right"><i class="ti-fullscreen mr-1"></i>&nbsp;Visualizza tutti gli spazi</b-button></b-col>
-		</b-form-row>
+        <b-col
+          v-if="isAuthorized('admin, moma')"
+          md="4"
+        >
+          <b-form-group label="Città:">
+            <b-form-select
+              v-model="city"
+              :options="offices_city"
+              value-field="id"
+              text-field="name"
+              @input="updateCity($event)"
+            />
+          </b-form-group>
+        </b-col>
+        <b-col>
+          <br>
+          <br>
+          <b-form-checkbox
+            v-model="coworking"
+            @change="toggle"
+          >
+            Coworking
+          </b-form-checkbox>
+        </b-col>
+        <b-col>
+          <br>
+          <br>
+          <b-button
+            size="sm"
+            class="btn btn-primary float-end"
+            @click="fitMarkers()"
+          >
+            <i class="ti-fullscreen me-1" />&nbsp;Visualizza tutti gli spazi
+          </b-button>
+        </b-col>
+      </b-form-row>
+    </b-form>
 		
-    	</b-form>
 		
-		
-		<br>
-		<!-- <b-button v-b-toggle.collapse-1 variant="secondary">Filtro</b-button>
+    <br>
+    <!-- <b-button v-b-toggle.collapse-1 variant="secondary">Filtro</b-button>
  	<b-collapse id="collapse-1" class="mt-2">
 		<b-form-select v-model="selected" :options="options" size="sm" class="mt-3" text-field="Città"></b-form-select>
 
     </b-collapse> -->
 		
-		<div id="map-container" class="mt-3">
-				<div id="spinner-container" class="text-center" v-if="loading">
-					<b-spinner id="spinner" variant="success" label="Spinning"></b-spinner>
-				</div>
+    <div
+      id="map-container"
+      class="mt-3"
+    >
+      <div
+        v-if="loading"
+        id="spinner-container"
+        class="text-center"
+      >
+        <b-spinner
+          id="spinner"
+          variant="success"
+          label="Spinning"
+        />
+      </div>
 		
-				<l-map id="my-map"  :zoom="zoom" :center="center" :options="getMapOptions"
-					@update:center="centerUpdate" @update:zoom="zoomUpdate" ref="map">
-					<l-tile-layer :url="getTilesUrl" :attribution="getMapAttribution" :options="getLayerOptions" />
+      <l-map
+        id="my-map"
+        ref="map"
+        :zoom="zoom"
+        :center="center"
+        :options="getMapOptions"
+        @update:center="centerUpdate"
+        @update:zoom="zoomUpdate"
+      >
+        <l-tile-layer
+          :url="getTilesUrl"
+          :attribution="getMapAttribution"
+          :options="getLayerOptions"
+        />
 
-					<span v-if="offices_layer.length > 0">
-						<l-marker v-for="office in offices_layer" :key="office.id" :lat-lng="[office.lat, office.lon]"
-							:icon="companyIcon(office.coworking)" :options="{ title: office.name }">
-							<l-popup ><strong>{{ office.company.name }}</strong><br><b-link
-									:to="`/offices/edit/${office.id}`"  :disabled="!(loggedUserIsMomaArea || loggedUserIsAdmin || loggedUserIsMomaManagerAziendale)">{{ office.name }}</b-link>
-									<div v-for="cow in office.info_coworking">
-										<br><strong v-if="office.coworking == 1 && office.info_coworking!=null">{{ coworking_types[cow.type] }}</strong>
-										<br><strong v-if="office.coworking == 1 && office.info_coworking!=null">Sale: {{ cow.sale }}</strong>
-										<br><strong v-if="office.coworking == 1 && office.info_coworking!=null">Costo: {{ cow.costo }} €</strong>
-										<br><b-link
-										v-if="office.coworking == 1 && office.info_coworking!=null" :to="cow.link">Prenotazione</b-link>
-									</div>
+        <span v-if="offices_layer.length > 0">
+          <l-marker
+            v-for="office in offices_layer"
+            :key="office.id"
+            :lat-lng="[office.lat, office.lon]"
+            :icon="companyIcon(office.coworking)"
+            :options="{ title: office.name }"
+          >
+            <l-popup><strong>{{ office.company.name }}</strong><br><b-link
+              :to="`/offices/edit/${office.id}`"
+              :disabled="!(loggedUserIsMomaArea || loggedUserIsAdmin || loggedUserIsMomaManagerAziendale)"
+            >{{ office.name }}</b-link>
+              <div v-for="cow in office.info_coworking">
+                <br><strong v-if="office.coworking == 1 && office.info_coworking!=null">{{ coworking_types[cow.type] }}</strong>
+                <br><strong v-if="office.coworking == 1 && office.info_coworking!=null">Sale: {{ cow.sale }}</strong>
+                <br><strong v-if="office.coworking == 1 && office.info_coworking!=null">Costo: {{ cow.costo }} €</strong>
+                <br><b-link
+                  v-if="office.coworking == 1 && office.info_coworking!=null"
+                  :to="cow.link"
+                >Prenotazione</b-link>
+              </div>
 								
-							</l-popup>
-						</l-marker>
-					</span>					
-
-				</l-map>
-		</div>		
-    </div>
+            </l-popup>
+          </l-marker>
+        </span>
+      </l-map>
+    </div>		
+  </div>
 </template>
 
 <script>
 import Util from "@/mixing/util";
 import L from "leaflet";
 import { latLng } from "leaflet";
-import { LMap, LTileLayer, LMarker, LCircleMarker, LWMSTileLayer, LPopup } from "vue2-leaflet";
+import { LMap, LTileLayer, LMarker, LCircleMarker, LWmsTileLayer, LPopup } from "@vue-leaflet/vue-leaflet";
 import "leaflet/dist/leaflet.css";
 import UserService from "@/services/user.service";
 
@@ -96,45 +144,15 @@ import UserService from "@/services/user.service";
 // });
 
 export default {
-	mixins: [Util],
 	components: {
 		LMap,
 		LMarker,
 		LTileLayer,
 		LCircleMarker,
 		LPopup,
-		"l-wms-tile-layer": LWMSTileLayer,				
+		"l-wms-tile-layer": LWmsTileLayer,				
 	},
-	async created () {	
-		this.loading = true;	
-		let response = await UserService.getOffices(null, "id, name, company_id, lat, lon, Companies.name, Companies.type, address, city, coworking, info_coworking");
-		this.office_list = response.data.offices;
-		this.offices_layer = this.generateLayer(this.office_types);
-		this.offices_city = Array.from(new Set(this.offices_layer.reduce((acc, item) => {
-		  if (!(item.city == null || item.city == '')) {
-			acc.push(item.city.trim().toLowerCase());
-		  }
-		  return acc;
-		}, []))).filter(value => value !== null);
-		
-		this.offices_city.sort(function (a, b) {
-					return a > b;
-				});
-		this.offices_city.unshift(
-			{
-					id: null,
-					name: "Tutte",
-				});
-		this.city =this.offices_city[0].id;
-		this.loading = false;
-		this.fitMarkers();		
-		this.coworking_types=(await UserService.getCoworkingtypes()).data.types;
-		this.coworking_types.unshift(
-			{
-					id: null,
-					name: "Tutte",
-				});
-	},
+	mixins: [Util],
 	data() {
 		return {
 			zoom: 8,
@@ -162,6 +180,34 @@ export default {
 	},
 	computed: {
 	},
+	async created () {	
+		this.loading = true;	
+		let response = await UserService.getOffices(null, "id, name, company_id, lat, lon, Companies.name, Companies.type, address, city, coworking, info_coworking");
+		this.office_list = response.data.offices;
+		this.offices_layer = this.generateLayer(this.office_types);
+		this.offices_city = Array.from(new Set(this.offices_layer.reduce((acc, item) => {
+		  if (!(item.city == null || item.city == '')) {
+			acc.push(item.city.trim().toLowerCase());
+		  }
+		  return acc;
+		}, []))).filter(value => value !== null);
+		
+		this.offices_city.sort((a, b) => a.localeCompare(b));
+		this.offices_city.unshift(
+			{
+					id: null,
+					name: "Tutte",
+				});
+		this.city =this.offices_city[0].id;
+		this.loading = false;
+		this.fitMarkers();		
+		this.coworking_types=(await UserService.getCoworkingtypes()).data.types;
+		this.coworking_types.unshift(
+			{
+					id: null,
+					name: "Tutte",
+				});
+	},
 	methods: {
 		zoomUpdate(zoom) {
 			this.currentZoom = zoom;
@@ -170,7 +216,7 @@ export default {
 			this.currentCenter = center;
 		},
 		fitMarkers() {
-			this.$refs.map.mapObject.fitBounds(this.offices_layer);
+			this.$refs.map.leafletObject.fitBounds(this.offices_layer, { maxZoom: 16 });
 		},
 		generateLayer: function (types,coworking=false,city=null,type=null) {
 			return this.office_list.filter((x) => {
@@ -267,9 +313,7 @@ export default {
 						
 				}
 			}))];
-			this.offices_city.sort(function (a, b) {
-						return a > b;
-					});
+			this.offices_city.sort((a, b) => a.localeCompare(b));
 			this.offices_city.unshift(
 				{
 						id: null,
@@ -293,9 +337,7 @@ export default {
 						
 				}
 			}))];
-			this.offices_city.sort(function (a, b) {
-						return a > b;
-					});
+			this.offices_city.sort((a, b) => a.localeCompare(b));
 			this.offices_city.unshift(
 				{
 						id: null,
@@ -310,9 +352,9 @@ export default {
 </script>
 
 <style scoped>
-@import "~leaflet.markercluster/dist/MarkerCluster.css";
-@import "~leaflet.markercluster/dist/MarkerCluster.Default.css";
-@import "~vue-select/dist/vue-select.css";
+@import "leaflet.markercluster/dist/MarkerCluster.css";
+@import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+@import "vue-select/dist/vue-select.css";
 
 .myDivIcon {
 	text-align: center;

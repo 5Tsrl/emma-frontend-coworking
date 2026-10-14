@@ -1,5 +1,17 @@
 import DashboardLayout from "~theme/DashboardLayout.vue";
 
+const pages = import.meta.glob("./pages/**/*.vue", { eager: true });
+
+function pageComponent(name) {
+	const mod = pages[`./pages/${name}.vue`];
+	if (!mod) {
+		throw new Error(`pageComponent: ${name} not found in this module's pages/`);
+	}
+	return mod.default;
+}
+
+
+
 const routes = [
     {
 		path: "/",
@@ -16,21 +28,5 @@ const routes = [
 		]
 	}
 ];
-
-/**
- * Asynchronously load view (Webpack Lazy loading compatible)
- * The specified component must be inside the Views folder
- * @param  {string} name  the filename (basename) of the view to load.
- * **/
-function pageComponent(name) {	
-	var res;	
-		try {
-			res = require("@/extra/Coworking/pages/" + name + ".vue").default;
-		} catch (e) {
-			console.log("Errore route");
-			res = require("./pages/" + name + ".vue").default;
-		}	
-	return res;
-}
 
 export default routes;
